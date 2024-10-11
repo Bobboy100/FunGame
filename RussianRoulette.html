@@ -1,0 +1,466 @@
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            overflow: hidden;
+        }
+        .roulette-container {
+            text-align: center;
+            padding: 20px;
+            border: 3px solid #333;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
+            max-width: 400px;
+        }
+        .trigger-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff6b6b;
+            color: white;
+        }
+        .trigger-button:hover {
+            background-color: #ff8787;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .result.visible {
+            opacity: 1;
+        }
+        .scoreboard {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .secret-message {
+            display: none;
+            margin-top: 30px;
+            font-size: 20px;
+            color: #4caf50;
+            animation: secretMessageAnimation 1s ease-in-out;
+        }
+        .music-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .gun {
+            position: relative;
+            margin-top: 30px;
+            width: 300px;
+            height: 150px;
+            transform-origin: center right;
+        }
+        .gun .frame {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .gun .barrel {
+            width: 180px;
+            height: 20px;
+            background-color: #bbb;
+            border-radius: 5px;
+            position: absolute;
+            top: 65px;
+            left: 120px;
+            box-shadow: inset -3px -3px 7px rgba(0, 0, 0, 0.5);
+        }
+        .gun .cylinder {
+            position: absolute;
+            left: 100px;
+            top: 45px;
+            width: 70px;
+            height: 70px;
+            background-color: #888;
+            border-radius: 50%;
+            box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.5);
+            transform-origin: center;
+        }
+        .gun .cylinder.spin {
+            animation: spinCylinder 1s ease-in-out;
+        }
+        .gun .cylinder .chamber {
+            width: 15px;
+            height: 15px;
+            background-color: #555;
+            margin: 5px;
+            border-radius: 50%;
+        }
+        .gun .grip {
+            width: 60px;
+            height: 100px;
+            background-color: #333;
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            left: 20px;
+            top: 50px;
+            background: linear-gradient(135deg, #333, #555);
+            box-shadow: -3px -3px 7px rgba(0, 0, 0, 0.5);
+        }
+        .gun .trigger {
+            width: 20px;
+            height: 40px;
+            background-color: #444;
+            position: absolute;
+            left: 85px;
+            top: 90px;
+            border-radius: 0 0 15px 15px;
+        }
+        .gun .hammer {
+            width: 20px;
+            height: 30px;
+            background-color: #444;
+            position: absolute;
+            left: 170px;
+            top: 20px;
+            border-radius: 5px;
+            transform-origin: bottom;
+            box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .blood-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: red;
+            opacity: 0.5;
+            animation: bloodFade 1s ease-in-out;
+        }
+        @keyframes bloodFade {
+            0% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+        @keyframes secretMessageAnimation {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        @keyframes gunRecoil {
+            0% { transform: rotate(0deg); }
+            30% { transform: rotate(-20deg); }
+            60% { transform: rotate(10deg); }
+            100% { transform: rotate(0deg); }
+        }
+        @keyframes spinCylinder {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(720deg); }
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffd700;
+            animation: fall 3s infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50vh) rotate(0); }
+            100% { transform: translateY(50vh) rotate(720deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="roulette-container" id="rouletteContainer">
+        <h1>Russian Roulette Game</h1>
+        <p>Press the trigger and test your luck!</p>
+        <button class="trigger-button" onclick="playRoulette()">Pull the Trigger</button>
+        <button class="trigger-button" onclick="spinChamber()">Spin the Chamber</button>
+        <button class="trigger-button" onclick="loadBullet()">Load a Bullet</button>
+        <div class="result" id="result"></div>
+        <div class="scoreboard" id="scoreboard">
+            <p>Wins: <span id="wins">0</span></p>
+            <p>Losses: <span id="losses">0</span></p>
+            <p>Bullets Loaded: <span id="bullets">0</span></p>
+        </div>
+    </div>
+
+    <div class="secret-message" id="secretMessage">You found the secret! Congratulations!</div>
+
+    <div class="music-controls">
+        <button class="trigger-button" onclick="toggleMusic()">Toggle Music</button>
+        <button class="trigger-button" id="muteButton" onclick="muteMusic()">Mute Music</button>
+    </div>
+
+    
+            
+                <div class="chamber"></div>
+                <div class="chamber"></div>
+                <div class="chamber"></div>
+                <div class="chamber"></div>
+                <div class="chamber"></div>
+            </div>
+            <div class="trigger"></div>
+            <div class="grip"></div>
+            <div class="hammer"></div>
+        </div>
+    </div>
+        <div class="cylinder" id="cylinder">
+            <div class="cylinder-housing"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+        </div>
+        <div class="trigger"></div>
+        <div class="grip"></div>
+        <div class="hammer"></div>
+    </div>
+        <div class="cylinder" id="cylinder">
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+        </div>
+        <div class="trigger"></div>
+        <div class="grip"></div>
+    </div>
+        <div class="cylinder" id="cylinder">
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+        </div>
+        <div class="trigger"></div>
+        <div class="grip"></div>
+    </div>
+        <div class="cylinder" id="cylinder">
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+        </div>
+        <div class="trigger"></div>
+        <div class="handle"></div>
+    </div>
+        <div class="cylinder" id="cylinder">
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+            <div class="chamber"></div>
+        </div>
+        <div class="trigger"></div>
+        <div class="handle"></div>
+    </div>
+
+    <audio id="backgroundMusic" loop>
+        <source src="background1.mp3" type="audio/mpeg">
+        <source src="background2.mp3" type="audio/mpeg">
+        <source src="background3.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        // Initialize win and loss counters and bullets
+        let wins = 0;
+        let losses = 0;
+        let bulletsLoaded = 0;
+        const maxChamberSize = 6;
+        let chamber = Array(maxChamberSize).fill(false); // Chamber to hold bullet positions
+        let currentChamberIndex = 0;
+        let currentTrackIndex = 0;
+        const tracks = ["background1.mp3", "background2.mp3", "background3.mp3"];
+
+        // Function to play the Russian Roulette game
+        function playRoulette() {
+            // Check if there are any bullets loaded
+            if (bulletsLoaded === 0) {
+                displayResult("No bullets loaded. Spin or load a bullet first.", "black");
+                return;
+            }
+
+            // Determine if player loses based on the current chamber position
+            const resultDiv = document.getElementById('result');
+            if (chamber[currentChamberIndex]) {
+                resultDiv.textContent = "Bang! You're out.";
+                resultDiv.style.color = "red";
+                losses++;
+                chamber[currentChamberIndex] = false; // Remove bullet from current chamber
+                bulletsLoaded--;
+                triggerBloodEffect();
+            } else {
+                resultDiv.textContent = "Click! You survived.";
+                resultDiv.style.color = "green";
+                wins++;
+                triggerConfetti();
+            }
+            resultDiv.classList.add('visible');
+            updateScoreboard();
+            // Move to the next chamber position
+            currentChamberIndex = (currentChamberIndex + 1) % maxChamberSize;
+        }
+
+        // Function to update the scoreboard
+        function updateScoreboard() {
+            document.getElementById('wins').textContent = wins;
+            document.getElementById('losses').textContent = losses;
+            document.getElementById('bullets').textContent = bulletsLoaded;
+        }
+
+        // Function to reset the game
+        function resetGame() {
+            wins = 0;
+            losses = 0;
+            bulletsLoaded = 0;
+            chamber = Array(maxChamberSize).fill(false);
+            currentChamberIndex = 0;
+            updateScoreboard();
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = "";
+            resultDiv.classList.remove('visible');
+        }
+
+        // Function to load a bullet into the chamber
+        function loadBullet() {
+            if (bulletsLoaded < maxChamberSize) {
+                // Find the next empty chamber slot and load a bullet
+                let loaded = false;
+                for (let i = 0; i < maxChamberSize; i++) {
+                    if (!chamber[i]) {
+                        chamber[i] = true;
+                        bulletsLoaded++;
+                        loaded = true;
+                        break;
+                    }
+                }
+                if (loaded) {
+                    updateScoreboard();
+                    displayResult("Bullet loaded!", "blue");
+                }
+            } else {
+                displayResult("Chamber is full! Cannot load more bullets.", "black");
+            }
+        }
+
+        // Function to spin the chamber
+        function spinChamber() {
+            // Add spin animation to cylinder
+            const cylinder = document.getElementById('cylinder');
+            cylinder.classList.add('spin');
+            setTimeout(() => {
+                cylinder.classList.remove('spin');
+            }, 1000);
+            
+            // Randomize the starting position of the chamber
+            currentChamberIndex = Math.floor(Math.random() * maxChamberSize);
+            displayResult("Chamber spun!", "purple");
+        }
+
+        // Function to toggle background music
+        function toggleMusic() {
+            const music = document.getElementById('backgroundMusic');
+            if (music.paused) {
+                currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+                music.src = tracks[currentTrackIndex];
+                music.play();
+            } else {
+                music.pause();
+            }
+        }
+
+        // Function to mute background music
+        function muteMusic() {
+            const music = document.getElementById('backgroundMusic');
+            const muteButton = document.getElementById('muteButton');
+            if (music.paused) {
+                music.play();
+                muteButton.textContent = 'Mute Music';
+            } else {
+                music.pause();
+                muteButton.textContent = 'Unmute Music';
+            }
+        }
+
+        // Function to display result message
+        function displayResult(message, color) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.style.color = color;
+            resultDiv.classList.add('visible');
+        }
+
+        // Function to trigger confetti animation when player survives
+        function triggerConfetti() {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                document.body.appendChild(confetti);
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Function to trigger blood effect when player loses
+        function triggerBloodEffect() {
+            const bloodEffect = document.createElement('div');
+            bloodEffect.className = 'blood-effect';
+            document.body.appendChild(bloodEffect);
+            setTimeout(() => {
+                bloodEffect.remove();
+            }, 1000);
+        }
+
+        // Function to reveal secret message and trigger animations when special input is typed anywhere
+        document.addEventListener('keydown', function(event) {
+            const secretMessageDiv = document.getElementById('secretMessage');
+            const keySequence = ['p', 'i', 'u', 'p', 'a', 'u', 'p', 'u', 'm'];
+            let keyIndex = 0;
+            if (event.key === keySequence[keyIndex]) {
+                keyIndex++;
+                if (keyIndex === keySequence.length) {
+                    keyIndex = 0;
+                    if (secretMessageDiv.style.display === 'none') {
+                        secretMessageDiv.style.display = 'block';
+                        secretMessageDiv.textContent = "Piupaupum! It's party time! Enjoy the animations!";
+                        alert("Secret mode activated! Enjoy the party!");
+                        triggerConfetti();
+                        // Additional secret animations
+                        document.body.style.backgroundColor = 'black';
+                        setTimeout(() => {
+                            document.body.style.backgroundColor = '';
+                        }, 5000);
+                        let secretSound = new Audio('secret.mp3');
+                        secretSound.play();
+                    }
+                }
+            } else {
+                keyIndex = 0;
+            }
+        });
+    </script>
+
+    <!-- Add a button to reset the game -->
+    <button class="trigger-button" onclick="resetGame()" style="margin-top: 20px;">Reset Game</button>
+</body>
+</html>
