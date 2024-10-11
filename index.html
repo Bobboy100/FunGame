@@ -1,4 +1,10 @@
-<style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russian Roulette Multiplayer</title>
+    <style>
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -61,80 +67,6 @@
             display: flex;
             gap: 10px;
         }
-        .gun {
-            position: relative;
-            margin-top: 30px;
-            width: 300px;
-            height: 150px;
-            transform-origin: center right;
-        }
-        .gun .frame {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        .gun .barrel {
-            width: 180px;
-            height: 20px;
-            background-color: #bbb;
-            border-radius: 5px;
-            position: absolute;
-            top: 65px;
-            left: 120px;
-            box-shadow: inset -3px -3px 7px rgba(0, 0, 0, 0.5);
-        }
-        .gun .cylinder {
-            position: absolute;
-            left: 100px;
-            top: 45px;
-            width: 70px;
-            height: 70px;
-            background-color: #888;
-            border-radius: 50%;
-            box-shadow: inset -2px -2px 5px rgba(0, 0, 0, 0.5);
-            transform-origin: center;
-        }
-        .gun .cylinder.spin {
-            animation: spinCylinder 1s ease-in-out;
-        }
-        .gun .cylinder .chamber {
-            width: 15px;
-            height: 15px;
-            background-color: #555;
-            margin: 5px;
-            border-radius: 50%;
-        }
-        .gun .grip {
-            width: 60px;
-            height: 100px;
-            background-color: #333;
-            border-radius: 0 0 20px 20px;
-            position: absolute;
-            left: 20px;
-            top: 50px;
-            background: linear-gradient(135deg, #333, #555);
-            box-shadow: -3px -3px 7px rgba(0, 0, 0, 0.5);
-        }
-        .gun .trigger {
-            width: 20px;
-            height: 40px;
-            background-color: #444;
-            position: absolute;
-            left: 85px;
-            top: 90px;
-            border-radius: 0 0 15px 15px;
-        }
-        .gun .hammer {
-            width: 20px;
-            height: 30px;
-            background-color: #444;
-            position: absolute;
-            left: 170px;
-            top: 20px;
-            border-radius: 5px;
-            transform-origin: bottom;
-            box-shadow: -2px -2px 5px rgba(0, 0, 0, 0.5);
-        }
         .blood-effect {
             position: absolute;
             top: 0;
@@ -179,11 +111,11 @@
 </head>
 <body>
     <div class="roulette-container" id="rouletteContainer">
-        <h1>Russian Roulette Game</h1>
+        <h1>Russian Roulette Multiplayer Game</h1>
         <p>Press the trigger and test your luck!</p>
-        <button class="trigger-button" onclick="playRoulette()">Pull the Trigger</button>
-        <button class="trigger-button" onclick="spinChamber()">Spin the Chamber</button>
         <button class="trigger-button" onclick="loadBullet()">Load a Bullet</button>
+        <button class="trigger-button" onclick="spinChamber()">Spin the Chamber</button>
+        <button class="trigger-button" onclick="playRoulette()">Pull the Trigger</button>
         <div class="result" id="result"></div>
         <div class="scoreboard" id="scoreboard">
             <p>Wins: <span id="wins">0</span></p>
@@ -199,77 +131,6 @@
         <button class="trigger-button" id="muteButton" onclick="muteMusic()">Mute Music</button>
     </div>
 
-    
-            
-                <div class="chamber"></div>
-                <div class="chamber"></div>
-                <div class="chamber"></div>
-                <div class="chamber"></div>
-                <div class="chamber"></div>
-            </div>
-            <div class="trigger"></div>
-            <div class="grip"></div>
-            <div class="hammer"></div>
-        </div>
-    </div>
-        <div class="cylinder" id="cylinder">
-            <div class="cylinder-housing"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-        </div>
-        <div class="trigger"></div>
-        <div class="grip"></div>
-        <div class="hammer"></div>
-    </div>
-        <div class="cylinder" id="cylinder">
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-        </div>
-        <div class="trigger"></div>
-        <div class="grip"></div>
-    </div>
-        <div class="cylinder" id="cylinder">
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-        </div>
-        <div class="trigger"></div>
-        <div class="grip"></div>
-    </div>
-        <div class="cylinder" id="cylinder">
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-        </div>
-        <div class="trigger"></div>
-        <div class="handle"></div>
-    </div>
-        <div class="cylinder" id="cylinder">
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-            <div class="chamber"></div>
-        </div>
-        <div class="trigger"></div>
-        <div class="handle"></div>
-    </div>
-
     <audio id="backgroundMusic" loop>
         <source src="background1.mp3" type="audio/mpeg">
         <source src="background2.mp3" type="audio/mpeg">
@@ -278,102 +139,31 @@
     </audio>
 
     <script>
-        // Initialize win and loss counters and bullets
-        let wins = 0;
-        let losses = 0;
-        let bulletsLoaded = 0;
-        const maxChamberSize = 6;
-        let chamber = Array(maxChamberSize).fill(false); // Chamber to hold bullet positions
-        let currentChamberIndex = 0;
-        let currentTrackIndex = 0;
-        const tracks = ["background1.mp3", "background2.mp3", "background3.mp3"];
+        const socket = new WebSocket('ws://localhost:8080');
 
-        // Function to play the Russian Roulette game
-        function playRoulette() {
-            // Check if there are any bullets loaded
-            if (bulletsLoaded === 0) {
-                displayResult("No bullets loaded. Spin or load a bullet first.", "black");
-                return;
-            }
+        socket.onopen = function () {
+            console.log('Connected to the server');
+        };
 
-            // Determine if player loses based on the current chamber position
+        socket.onmessage = function (event) {
+            console.log('Message from server:', event.data);
             const resultDiv = document.getElementById('result');
-            if (chamber[currentChamberIndex]) {
-                resultDiv.textContent = "Bang! You're out.";
-                resultDiv.style.color = "red";
-                losses++;
-                chamber[currentChamberIndex] = false; // Remove bullet from current chamber
-                bulletsLoaded--;
-                triggerBloodEffect();
-            } else {
-                resultDiv.textContent = "Click! You survived.";
-                resultDiv.style.color = "green";
-                wins++;
-                triggerConfetti();
-            }
+            resultDiv.textContent = event.data;
             resultDiv.classList.add('visible');
-            updateScoreboard();
-            // Move to the next chamber position
-            currentChamberIndex = (currentChamberIndex + 1) % maxChamberSize;
-        }
+        };
 
-        // Function to update the scoreboard
-        function updateScoreboard() {
-            document.getElementById('wins').textContent = wins;
-            document.getElementById('losses').textContent = losses;
-            document.getElementById('bullets').textContent = bulletsLoaded;
-        }
-
-        // Function to reset the game
-        function resetGame() {
-            wins = 0;
-            losses = 0;
-            bulletsLoaded = 0;
-            chamber = Array(maxChamberSize).fill(false);
-            currentChamberIndex = 0;
-            updateScoreboard();
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = "";
-            resultDiv.classList.remove('visible');
-        }
-
-        // Function to load a bullet into the chamber
         function loadBullet() {
-            if (bulletsLoaded < maxChamberSize) {
-                // Find the next empty chamber slot and load a bullet
-                let loaded = false;
-                for (let i = 0; i < maxChamberSize; i++) {
-                    if (!chamber[i]) {
-                        chamber[i] = true;
-                        bulletsLoaded++;
-                        loaded = true;
-                        break;
-                    }
-                }
-                if (loaded) {
-                    updateScoreboard();
-                    displayResult("Bullet loaded!", "blue");
-                }
-            } else {
-                displayResult("Chamber is full! Cannot load more bullets.", "black");
-            }
+            socket.send('load');
         }
 
-        // Function to spin the chamber
         function spinChamber() {
-            // Add spin animation to cylinder
-            const cylinder = document.getElementById('cylinder');
-            cylinder.classList.add('spin');
-            setTimeout(() => {
-                cylinder.classList.remove('spin');
-            }, 1000);
-            
-            // Randomize the starting position of the chamber
-            currentChamberIndex = Math.floor(Math.random() * maxChamberSize);
-            displayResult("Chamber spun!", "purple");
+            socket.send('spin');
         }
 
-        // Function to toggle background music
+        function playRoulette() {
+            socket.send('pull');
+        }
+
         function toggleMusic() {
             const music = document.getElementById('backgroundMusic');
             if (music.paused) {
@@ -385,7 +175,6 @@
             }
         }
 
-        // Function to mute background music
         function muteMusic() {
             const music = document.getElementById('backgroundMusic');
             const muteButton = document.getElementById('muteButton');
@@ -396,14 +185,6 @@
                 music.pause();
                 muteButton.textContent = 'Unmute Music';
             }
-        }
-
-        // Function to display result message
-        function displayResult(message, color) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.textContent = message;
-            resultDiv.style.color = color;
-            resultDiv.classList.add('visible');
         }
 
         // Function to trigger confetti animation when player survives
